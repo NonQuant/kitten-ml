@@ -44,4 +44,16 @@ private:
 
 using TensorPtr = std::shared_ptr<Tensor>;
 
+inline TensorPtr operator+(const TensorPtr &a, const TensorPtr &b) {
+  auto out = std::make_shared<Tensor>(a->data + b->data);
+  out->parents = {a, b};
+
+  out->backward_fn = [a, b, out]() {
+    a->grad += out->grad;
+    b->grad += out->grad;
+  };
+
+  return out;
+}
+
 } // namespace kittenml
