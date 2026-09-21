@@ -15,12 +15,31 @@ public:
   Eigen::MatrixXd data;
   Eigen::MatrixXd grad;
 
+  // tensors that produced this tensor
+  std::vector<std::shared_ptr<Tensor>> parents;
+
+  // function for gradient math of specific operation that created this tensor
+  std::function<void()> backward_fn;
+
   explicit Tensor(Eigen::MatrixXd data_)
       : data(std::move(data_)),
         grad(Eigen::MatrixXd::Zero(data.rows(), data.cols())) {}
 
-  // TODO: add operator+, operator*, matmul(), etc. here.
-  // TODO: add backward() here.
+  void backward() {
+    grad = Eigen::MatrixXd::Ones(data.rows(), data.cols());
+    backward_impl();
+  }
+
+private:
+  // walk the graph backwards
+  void backward_impl() {
+    if (backward_fn) {
+      backward_fn();
+    }
+    for (auto &parent : parents) {
+      parent->backward_impl();
+    }
+  }
 };
 
 using TensorPtr = std::shared_ptr<Tensor>;
