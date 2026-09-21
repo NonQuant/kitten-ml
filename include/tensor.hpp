@@ -56,4 +56,54 @@ inline TensorPtr operator+(const TensorPtr &a, const TensorPtr &b) {
   return out;
 }
 
+inline TensorPtr operator*(const TensorPtr &a, const TensorPtr &b) {
+  auto out = std::make_shared<Tensor>(
+      a->data.cwiseProduct(b->data)); // elementwise multiplication
+  out->parents = {a, b};
+
+  out->backward_fn = [a, b, out]() {
+    a->grad += out->grad.cwiseProduct(b->data);
+    b->grad += out->grad.cwiseProduct(a->data);
+  };
+
+  return out;
+}
+
+inline TensorPtr operator-(const TensorPtr &a, const TensorPtr &b) {
+  auto out = std::make_shared<Tensor>(a->data - b->data);
+  out->parents = {a, b};
+
+  out->backward_fn = [a, b, out]() {
+    a->grad += out->grad;
+    b->grad += -out->grad;
+  };
+
+  return out;
+}
+
+inline TensorPtr operator/(const TensorPtr &a, const TensorPtr &b) {
+  auto out = std::make_shared<Tensor>(a->data.cwiseQuotient(b->data));
+  out->parents = {a, b};
+
+  out->backward_fn = [a, b, out]() {
+    a->grad += out->grad.cwiseQuotient(b->data); // out / b
+    b->grad += -(out->grad.cwiseProduct(a->data.cwiseQuotient(
+        b->data.cwiseProduct(b->data)))); // -out * a / b^2
+  };
+
+  return out;
+}
+
+inline TensorPtr matmul(const TensorPtr &a, const TensorPtr &b) {
+  auto out = std::make_shared<Tensor>(a->data * b->data);
+  out->parents = {a, b};
+
+  out->backward_fn = [a, b, out]() {
+    a->grad += out->grad * b->data.transpose();
+    b->grad += a->data.transpose() * out->grad;
+  };
+
+  return out;
+}
+
 } // namespace kittenml
