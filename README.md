@@ -1,8 +1,6 @@
-# kitten-ml (starter kit)
+# kitten-ml
 
-This is just a toolchain check — it confirms CMake, Eigen, and Catch2
-are all wired up correctly on your machine, before you write any
-actual autograd code.
+Kitten-ML: a small, sklearn-flavored ML library in C++, with an autograd engine at its core.
 
 ## Prerequisites
 
