@@ -3,6 +3,7 @@
 #include <Eigen/Dense>
 #include <functional>
 #include <memory>
+#include <unordered_set>
 #include <vector>
 
 namespace kittenml {
@@ -27,18 +28,30 @@ public:
 
   void backward() {
     grad = Eigen::MatrixXd::Ones(data.rows(), data.cols());
-    backward_impl();
+
+    std::vector<Tensor *> topo_order;
+    std::unordered_set<Tensor *> visited;
+
+    build_topo(this, visited, topo_order); // post-order DFS
+
+    for (auto it = topo_order.rbegin(); it != topo_order.rend(); ++it) {
+      if ((*it)->backward_fn)
+        (*it)->backward_fn();
+    }
   }
 
 private:
-  // walk the graph backwards
-  void backward_impl() {
-    if (backward_fn) {
-      backward_fn();
+  static void build_topo(Tensor *node, std::unordered_set<Tensor *> &visited,
+                         std::vector<Tensor *> &topo_order) {
+    if (visited.count(node))
+      return;
+    visited.insert(node);
+
+    for (auto &parent : node->parents) {
+      build_topo(parent.get(), visited, topo_order);
     }
-    for (auto &parent : parents) {
-      parent->backward_impl();
-    }
+
+    topo_order.push_back(node);
   }
 };
 
