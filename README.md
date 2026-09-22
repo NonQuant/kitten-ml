@@ -19,9 +19,9 @@ all tests passed, your environment is ready.
 
 ## Roadmap
 
-| Step | Milestone                                                                    | Deliverable                                            |
-| ---- | ---------------------------------------------------------------------------- | ------------------------------------------------------ |
-| 1    | Autograd core — `Tensor`, `+`, `*`, `matmul`, `backward()`                   | Gradients match hand-checked values                    |
-| 2    | Ops + `nn` module — activations, losses, SGD                                 | MLP trains on a toy dataset (Iris/XOR)                 |
-| 3    | Classical ML — kNN, K-Means, PCA, Decision Trees, Linear/Logistic Regression | Each has `fit()`/`predict()` + demo                    |
-| 4    | Data utils, benchmarks vs. sklearn, docs                                     | README + comparison numbers (stretch: Python bindings) |
+| Step | Milestone                                                                    | Deliverable                                            | Status      |
+| ---- | ---------------------------------------------------------------------------- | ------------------------------------------------------ | ----------- |
+| 1    | Autograd core — `Tensor`, `+`, `*`, `matmul`, `backward()`                   | Gradients match hand-checked values                    | Started     |
+| 2    | Ops + `nn` module — activations, losses, SGD                                 | MLP trains on a toy dataset (Iris/XOR)                 | Not started |
+| 3    | Classical ML — kNN, K-Means, PCA, Decision Trees, Linear/Logistic Regression | Each has `fit()`/`predict()` + demo                    | Not started |
+| 4    | Data utils, benchmarks vs. sklearn, docs                                     | README + comparison numbers (stretch: Python bindings) | Not started |
