@@ -1,6 +1,6 @@
 #include <Eigen/Dense>
 #include <catch2/catch_test_macros.hpp>
-#include <tensor.hpp>
+#include <ops.hpp>
 
 using namespace kittenml;
 
@@ -57,6 +57,23 @@ void check_gradient(OpFn op, const Eigen::MatrixXd &a_data,
 
   REQUIRE(a->grad.isApprox(expected_grad_a, 1e-4));
   REQUIRE(b->grad.isApprox(expected_grad_b, 1e-4));
+}
+
+template <typename OpFn>
+void check_unary_gradient(OpFn op, const Eigen::MatrixXd &data,
+                          const Eigen::MatrixXd &weights) {
+  auto a = std::make_shared<Tensor>(data);
+  auto w = std::make_shared<Tensor>(weights);
+  auto loss = sum(op(a) * w);
+  loss->backward();
+
+  auto numerical_loss = [&](const Eigen::MatrixXd &perturbed) {
+    auto a2 = std::make_shared<Tensor>(perturbed);
+    return op(a2)->data.cwiseProduct(weights).sum();
+  };
+
+  Eigen::MatrixXd expected = numerical_gradient(numerical_loss, data);
+  REQUIRE(a->grad.isApprox(expected, 1e-4));
 }
 
 TEST_CASE("gradient check: addition", "[gradcheck]") {
@@ -129,4 +146,61 @@ TEST_CASE("gradient check: diamond dependency (reused tensor)", "[gradcheck]") {
                              Eigen::MatrixXd::Ones(2, 2) * c_data.transpose();
 
   REQUIRE(a->grad.isApprox(expected, 1e-8));
+}
+
+TEST_CASE("gradient check: sum", "[gradcheck]") {
+  Eigen::MatrixXd data(2, 3);
+  data << 1.0, -2.0, 3.0, 0.5, 4.0, -1.0;
+
+  check_unary_gradient([](auto a) { return sum(a); }, data,
+                       Eigen::MatrixXd::Constant(1, 1, 2.5));
+  check_unary_gradient(
+      [](auto a) { return sum(a, 0); }, data,
+      (Eigen::MatrixXd(1, 3) << 1.0, -2.0, 0.5).finished());
+  check_unary_gradient(
+      [](auto a) { return sum(a, 1); }, data,
+      (Eigen::MatrixXd(2, 1) << 1.5, -0.5).finished());
+}
+
+TEST_CASE("gradient check: sigmoid", "[gradcheck]") {
+  Eigen::MatrixXd data(2, 3);
+  data << -3.0, -0.5, 0.0, 0.7, 2.0, 5.0;
+  Eigen::MatrixXd weights(2, 3);
+  weights << 0.5, -1.0, 2.0, 1.5, -0.2, 0.8;
+
+  check_unary_gradient([](auto a) { return sigmoid(a); }, data, weights);
+}
+
+TEST_CASE("gradient check: log", "[gradcheck]") {
+  Eigen::MatrixXd data(2, 3);
+  data << 0.2, 0.5, 1.0, 1.5, 3.0, 8.0;
+  Eigen::MatrixXd weights(2, 3);
+  weights << 1.0, -0.5, 2.0, 0.3, -1.2, 0.7;
+
+  check_unary_gradient([](auto a) { return log(a); }, data, weights);
+
+  auto zero = std::make_shared<Tensor>(Eigen::MatrixXd::Zero(1, 1));
+  auto result = log(zero);
+  result->backward();
+  REQUIRE(std::isfinite(result->data(0, 0)));
+  REQUIRE(zero->grad(0, 0) == 0.0);
+}
+
+TEST_CASE("gradient check: exp", "[gradcheck]") {
+  Eigen::MatrixXd data(2, 3);
+  data << -2.0, -0.3, 0.0, 0.4, 1.2, 2.0;
+  Eigen::MatrixXd weights(2, 3);
+  weights << 0.2, -0.8, 1.5, 2.0, -0.4, 0.7;
+
+  check_unary_gradient([](auto a) { return exp(a); }, data, weights);
+}
+
+TEST_CASE("gradient check: softmax", "[gradcheck]") {
+  Eigen::MatrixXd data(2, 3);
+  data << 1000.0, 1001.0, 999.0, -1000.0, -998.0, -999.0;
+  Eigen::MatrixXd weights(2, 3);
+  weights << 0.5, -1.0, 2.0, 1.5, -0.2, 0.8;
+
+  check_unary_gradient([](auto a) { return softmax(a); }, data, weights);
+  check_unary_gradient([](auto a) { return softmax(a, 0); }, data, weights);
 }
