@@ -3,6 +3,7 @@
 #include <Eigen/Dense>
 #include <functional>
 #include <memory>
+#include <stdexcept>
 #include <unordered_set>
 #include <vector>
 
@@ -58,12 +59,35 @@ private:
 using TensorPtr = std::shared_ptr<Tensor>;
 
 inline TensorPtr operator+(const TensorPtr &a, const TensorPtr &b) {
-  auto out = std::make_shared<Tensor>(a->data + b->data);
+  bool broadcast_a = a->data.rows() == 1 &&
+                     a->data.cols() == b->data.cols() && b->data.rows() > 1;
+  bool broadcast_b = b->data.rows() == 1 &&
+                     b->data.cols() == a->data.cols() && a->data.rows() > 1;
+  Eigen::MatrixXd data;
+
+  if (a->data.rows() == b->data.rows() &&
+      a->data.cols() == b->data.cols())
+    data = a->data + b->data;
+  else if (broadcast_a)
+    data = b->data.rowwise() + a->data.row(0);
+  else if (broadcast_b)
+    data = a->data.rowwise() + b->data.row(0);
+  else
+    throw std::invalid_argument("incompatible shapes for addition");
+
+  auto out = std::make_shared<Tensor>(data);
   out->parents = {a, b};
 
-  out->backward_fn = [a, b, out]() {
-    a->grad += out->grad;
-    b->grad += out->grad;
+  out->backward_fn = [a, b, out, broadcast_a, broadcast_b]() {
+    if (broadcast_a)
+      a->grad += out->grad.colwise().sum();
+    else
+      a->grad += out->grad;
+
+    if (broadcast_b)
+      b->grad += out->grad.colwise().sum();
+    else
+      b->grad += out->grad;
   };
 
   return out;
