@@ -84,3 +84,38 @@ TEST_CASE("CrossEntropyLoss accepts class-index targets", "[nn][loss]") {
   REQUIRE(logits->grad.rowwise().sum().isZero(1e-12));
   REQUIRE(labels->grad.isZero());
 }
+
+TEST_CASE("SGD updates parameters and clears their gradients",
+          "[nn][optimizer]") {
+  auto first = std::make_shared<Tensor>(
+      (Eigen::MatrixXd(1, 2) << 1.0, -2.0).finished());
+  auto second = std::make_shared<Tensor>(
+      (Eigen::MatrixXd(2, 1) << 3.0, 4.0).finished());
+  first->grad << 0.5, -1.0;
+  second->grad << 2.0, -0.5;
+
+  nn::SGD optimizer({first, second}, 0.1);
+  optimizer.step();
+
+  Eigen::MatrixXd expected_first(1, 2);
+  expected_first << 0.95, -1.9;
+  Eigen::MatrixXd expected_second(2, 1);
+  expected_second << 2.8, 4.05;
+  REQUIRE(first->data.isApprox(expected_first));
+  REQUIRE(second->data.isApprox(expected_second));
+  REQUIRE(first->grad.isZero());
+  REQUIRE(second->grad.isZero());
+}
+
+TEST_CASE("SGD can clear gradients without taking a step",
+          "[nn][optimizer]") {
+  auto parameter =
+      std::make_shared<Tensor>(Eigen::MatrixXd::Constant(2, 2, 1.0));
+  parameter->grad.setConstant(3.0);
+  nn::SGD optimizer({parameter}, 0.01);
+
+  optimizer.zero_grad();
+
+  REQUIRE(parameter->data.isApprox(Eigen::MatrixXd::Constant(2, 2, 1.0)));
+  REQUIRE(parameter->grad.isZero());
+}
