@@ -1,6 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <Eigen/Dense>
 #include <data.hpp>
+#include <limits>
 
 TEST_CASE("Eigen matrix multiply works as expected", "[sanity]") {
     Eigen::MatrixXd a(2, 2);
@@ -85,4 +86,41 @@ TEST_CASE("make_blobs returns balanced reproducible classification data",
 TEST_CASE("make_blobs validates its dimensions", "[data]") {
     REQUIRE_THROWS_AS(kittenml::make_blobs(-1, 2, 0), std::invalid_argument);
     REQUIRE_THROWS_AS(kittenml::make_blobs(10, 0, 0), std::invalid_argument);
+}
+
+TEST_CASE("make_regression returns reproducible linear data", "[data]") {
+    const kittenml::Dataset first = kittenml::make_regression(40, 4, 0.0, 42);
+    const kittenml::Dataset second = kittenml::make_regression(40, 4, 0.0, 42);
+
+    REQUIRE(first.X.rows() == 40);
+    REQUIRE(first.X.cols() == 4);
+    REQUIRE(first.y.rows() == 40);
+    REQUIRE(first.y.cols() == 1);
+    REQUIRE(first.X == second.X);
+    REQUIRE(first.y == second.y);
+
+    const Eigen::VectorXd coefficients =
+        first.X.colPivHouseholderQr().solve(first.y);
+    REQUIRE((first.X * coefficients - first.y).norm() < 1e-10);
+}
+
+TEST_CASE("make_regression adds seeded target noise", "[data]") {
+    const kittenml::Dataset clean = kittenml::make_regression(20, 3, 0.0, 7);
+    const kittenml::Dataset noisy = kittenml::make_regression(20, 3, 0.5, 7);
+
+    REQUIRE(clean.X == noisy.X);
+    REQUIRE(clean.y != noisy.y);
+}
+
+TEST_CASE("make_regression validates its arguments", "[data]") {
+    REQUIRE_THROWS_AS(kittenml::make_regression(-1, 2, 0.0, 0),
+                      std::invalid_argument);
+    REQUIRE_THROWS_AS(kittenml::make_regression(10, 0, 0.0, 0),
+                      std::invalid_argument);
+    REQUIRE_THROWS_AS(kittenml::make_regression(10, 2, -0.1, 0),
+                      std::invalid_argument);
+    REQUIRE_THROWS_AS(
+        kittenml::make_regression(
+            10, 2, std::numeric_limits<double>::infinity(), 0),
+        std::invalid_argument);
 }
