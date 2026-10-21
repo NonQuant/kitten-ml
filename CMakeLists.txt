@@ -19,7 +19,7 @@ target_link_libraries(demo PRIVATE kittenml)
 
 # Tests — proves Catch2 is wired up correctly
 enable_testing()
-add_executable(tests tests/test_basic.cpp tests/test_gradients.cpp
-                     tests/test_nn.cpp)
+add_executable(tests tests/test_basic.cpp tests/test_data_loader.cpp
+                     tests/test_gradients.cpp tests/test_nn.cpp)
 target_link_libraries(tests PRIVATE kittenml Catch2::Catch2WithMain)
 add_test(NAME UnitTests COMMAND tests)
