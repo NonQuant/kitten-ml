@@ -14,14 +14,15 @@ Kitten-ML: a small, sklearn-flavored ML library in C++, with an autograd engine 
     ./demo
     ./tests
 
-If `demo` prints a 2x2 matrix and its transpose, and `tests` reports
-all tests passed, your environment is ready.
+The demo trains a small MLP on XOR and prints the loss at every step. It exits
+successfully after confirming that the loss is finite and decreases by at least
+half. The test executable should report that all tests passed.
 
 ## Roadmap
 
 | Step | Milestone                                                                    | Deliverable                                            | Status      |
 | ---- | ---------------------------------------------------------------------------- | ------------------------------------------------------ | ----------- |
 | 1    | Autograd core — `Tensor`, `+`, `*`, `matmul`, `backward()`                   | Gradients match hand-checked values                    | Started     |
-| 2    | Ops + `nn` module — activations, losses, SGD                                 | MLP trains on a toy dataset (Iris/XOR)                 | Not started |
+| 2    | Ops + `nn` module — activations, losses, SGD                                 | MLP trains on a toy dataset (Iris/XOR)                 | Started     |
 | 3    | Classical ML — kNN, K-Means, PCA, Decision Trees, Linear/Logistic Regression | Each has `fit()`/`predict()` + demo                    | Not started |
 | 4    | Data utils, benchmarks vs. sklearn, docs                                     | README + comparison numbers (stretch: Python bindings) | Not started |

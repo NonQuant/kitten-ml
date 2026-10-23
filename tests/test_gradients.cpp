@@ -162,6 +162,15 @@ TEST_CASE("gradient check: sum", "[gradcheck]") {
       (Eigen::MatrixXd(2, 1) << 1.5, -0.5).finished());
 }
 
+TEST_CASE("gradient check: relu", "[gradcheck]") {
+  Eigen::MatrixXd data(2, 3);
+  data << -3.0, -0.5, 0.2, 0.7, 2.0, 5.0;
+  Eigen::MatrixXd weights(2, 3);
+  weights << 0.5, -1.0, -2.0, 1.5, -0.2, 0.8;
+
+  check_unary_gradient([](auto a) { return relu(a); }, data, weights);
+}
+
 TEST_CASE("gradient check: sigmoid", "[gradcheck]") {
   Eigen::MatrixXd data(2, 3);
   data << -3.0, -0.5, 0.0, 0.7, 2.0, 5.0;
