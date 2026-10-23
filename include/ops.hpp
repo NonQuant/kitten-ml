@@ -25,7 +25,7 @@ inline TensorPtr relu(const TensorPtr &a) {
   out->parents = {a};
 
   out->backward_fn = [a, out]() {
-    a->grad += (out->grad.array() > 0).select(out->grad, 0);
+    a->grad += (a->data.array() > 0).select(out->grad, 0);
   };
 
   return out;
