@@ -2,6 +2,8 @@
 
 Kitten-ML: a small, sklearn-flavored ML library in C++, with an autograd engine at its core.
 
+Larger idea is to have a single, unified library that combines pytorch, sklearn and other tools. Users should be able to do everything starting from preprocessing, model training, evaluation and deployment (idk about this tho).
+
 ## Prerequisites
 
     brew install cmake eigen catch2
