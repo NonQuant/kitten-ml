@@ -1,6 +1,6 @@
 #pragma once
 
-#include "dataset.hpp"
+#include <kittenml/data/dataset.hpp>
 
 #include <algorithm>
 #include <cstddef>

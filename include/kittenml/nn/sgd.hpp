@@ -1,6 +1,6 @@
 #pragma once
 
-#include "tensor.hpp"
+#include <kittenml/tensor.hpp>
 
 #include <cmath>
 #include <stdexcept>

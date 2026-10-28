@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ops.hpp"
+#include <kittenml/ops.hpp>
 #include <cmath>
 
 namespace kittenml::nn {

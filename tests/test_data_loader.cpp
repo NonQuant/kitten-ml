@@ -1,5 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
-#include <data.hpp>
+#include <kittenml/data.hpp>
 
 #include <algorithm>
 #include <utility>

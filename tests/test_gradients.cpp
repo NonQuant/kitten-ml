@@ -1,6 +1,6 @@
 #include <Eigen/Dense>
 #include <catch2/catch_test_macros.hpp>
-#include <ops.hpp>
+#include <kittenml/ops.hpp>
 
 using namespace kittenml;
 

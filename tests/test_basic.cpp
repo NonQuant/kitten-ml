@@ -1,6 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <Eigen/Dense>
-#include <data.hpp>
+#include <kittenml/data.hpp>
+#include <kittenml/kittenml.hpp>
 #include <limits>
 
 TEST_CASE("Eigen matrix multiply works as expected", "[sanity]") {

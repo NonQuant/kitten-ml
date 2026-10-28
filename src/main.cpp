@@ -2,9 +2,9 @@
 #include <iostream>
 #include <limits>
 
-#include <data.hpp>
-#include <nn.hpp>
-#include <ops.hpp>
+#include <kittenml/data.hpp>
+#include <kittenml/nn.hpp>
+#include <kittenml/ops.hpp>
 
 using namespace kittenml;
 
