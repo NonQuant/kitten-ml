@@ -1,5 +1,4 @@
 #pragma once
 
-#include "nn/linear.hpp"
-#include "nn/loss.hpp"
-#include "nn/sgd.hpp"
+// Compatibility header. Prefer <kittenml/nn.hpp>.
+#include <kittenml/nn.hpp>

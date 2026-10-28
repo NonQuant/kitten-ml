@@ -1,5 +1,4 @@
 #pragma once
 
-#include "data/dataset.hpp"
-#include "data/dataloader.hpp"
-#include "data/generators.hpp"
+// Compatibility header. Prefer <kittenml/data.hpp>.
+#include <kittenml/data.hpp>
