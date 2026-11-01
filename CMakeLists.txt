@@ -18,7 +18,7 @@ add_executable(demo src/main.cpp)
 target_link_libraries(demo PRIVATE kittenml)
 
 # Classical ML examples
-foreach(example IN ITEMS knn kmeans pca)
+foreach(example IN ITEMS knn kmeans pca decision_tree linear_regression logistic_regression)
   add_executable(${example}_demo examples/classical/${example}.cpp)
   target_link_libraries(${example}_demo PRIVATE kittenml)
 endforeach()
@@ -28,6 +28,7 @@ enable_testing()
 add_executable(tests tests/test_basic.cpp tests/test_data_loader.cpp
                      tests/test_gradients.cpp tests/test_nn.cpp
                      tests/classical/test_knn.cpp
+                     tests/classical/test_estimators.cpp
                      tests/classical/test_kmeans.cpp
                      tests/classical/test_pca.cpp)
 target_link_libraries(tests PRIVATE kittenml Catch2::Catch2WithMain)
