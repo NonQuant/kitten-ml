@@ -31,5 +31,10 @@ add_executable(tests tests/test_basic.cpp tests/test_data_loader.cpp
                      tests/classical/test_estimators.cpp
                      tests/classical/test_kmeans.cpp
                      tests/classical/test_pca.cpp)
+target_sources(tests PRIVATE
+  tests/data/test_csv.cpp
+  tests/data/test_split.cpp
+  tests/preprocessing/test_standard_scaler.cpp
+  tests/metrics/test_metrics.cpp)
 target_link_libraries(tests PRIVATE kittenml Catch2::Catch2WithMain)
 add_test(NAME UnitTests COMMAND tests)
